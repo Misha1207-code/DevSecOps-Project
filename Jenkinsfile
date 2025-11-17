@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        DOCKERHUB_USER = "savisaini123"
-        IMAGE_NAME = "yourhtmlsite"
-    }
-
     stages {
 
         stage('Checkout Code') {
@@ -16,38 +11,38 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                echo 'Running basic security checks for HTML project...'
+                echo 'Running basic security checks (HTML project)...'
             }
         }
 
         stage('Dependency Scan') {
             steps {
-                echo 'No dependency scan required for static HTML...'
+                echo 'No dependencies found (HTML project)...'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:latest .
-                """
+                sh "docker build -t savisaini123/yourhtmlsite:latest ."
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-creds', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                    sh """
-                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
-                        docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest
-                    """
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'USERNAME',
+                    passwordVariable: 'PASSWORD'
+                )]) {
+                    sh "echo \$PASSWORD | docker login -u \$USERNAME --password-stdin"
+                    sh "docker push savisaini123/yourhtmlsite:latest"
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                echo 'Deployment placeholder...'
+                echo 'Deployment step for static HTML container...'
             }
         }
     }
