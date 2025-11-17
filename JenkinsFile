@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+
+    stages {
+  stage('Clone Repository') {
+            steps {
+                echo 'Cloning repository...'
+                git branch: 'main',
+                    credentialsId: 'github-token',
+                    url: 'https://github.com/Misha1207-code/DevSecOps-Project.git'
+            }
+        }
+
+        stage('Code Scan - SonarQube') {
+            steps {
+                echo 'Performing static code analysis with SonarQube...'
+            }
+        }
+
+        stage('Dependency Scan - OWASP') {
+            steps {
+                echo 'Running OWASP Dependency Check...'
+            }
+        }
+
+        stage('Container Scan - Trivy') {
+            steps {
+                echo 'Scanning Docker image with Trivy...'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to cloud (AWS EC2/DigitalOcean)...'
+            }
+        }
+    }
+}
