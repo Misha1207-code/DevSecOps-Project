@@ -15,9 +15,14 @@ pipeline {
             }
         }
 
-        stage('Dependency Scan') {
+        stage('Dependency Scan (OWASP DC)') {
             steps {
-                echo 'No dependencies found (HTML project)...'
+                dependencyCheck additionalArguments: '--scan .', odcInstallation: 'DC'
+            }
+            post {
+                always {
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                }
             }
         }
 
