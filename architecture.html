@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevSecOps Architecture</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: white;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #0a2a8f;
+      margin-bottom: 40px;
+      font-size: 28px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 30px 0;
+      gap: 30px;
+    }
+
+    .box {
+      background: #f8faff;
+      padding: 20px;
+      width: 260px;
+      border-radius: 15px;
+      border: 2px solid #d8e3ff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .box-title {
+      font-size: 18px;
+      color: #002d8b;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .arrow {
+      font-size: 30px;
+      font-weight: bold;
+      color: #0033cc;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>DevSecOps Architecture — Smart Campus Web Platform</h1>
+
+<!-- Row 1 -->
+<div class="row">
+  <div class="box">
+    <div class="box-title">Developers</div>
+    VS Code / Local <br>
+    Push code → GitHub
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="box">
+    <div class="box-title">GitHub</div>
+    Source Code Repo <br>
+    Webhook → Triggers Jenkins
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="box">
+    <div class="box-title">Jenkins CI/CD</div>
+    Checkout Code <br>
+    SonarQube Scan <br>
+    Dependency Check <br>
+    Docker Build + Push
+  </div>
+</div>
+
+<!-- Row 2 -->
+<div class="row">
+  <div class="box">
+    <div class="box-title">OWASP Dependency Check</div>
+    Library Vulnerabilities <br>
+    CVE Scan
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="box">
+    <div class="box-title">SonarQube</div>
+    Code Quality (SAST) <br>
+    Security Hotspots
+  </div>
+
+  <div class="arrow">→</div>
+
+  <div class="box">
+    <div class="box-title">Trivy Scan</div>
+    Container Vulnerability Scan <br>
+    Fails pipeline on Critical issues
+  </div>
+</div>
+
+<!-- Row 3 -->
+<div class="row">
+  <div class="box">
+    <div class="box-title">DockerHub</div>
+    Stores Docker Image
+  </div>
+</div>
+
+</body>
+</html>
