@@ -41,5 +41,12 @@ pipeline {
                 echo 'Deployment step for static HTML container...'
             }
         }
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('MySonar') {
+                    sh 'sonar-scanner'
+                }
+            }
+        }
     }
 }
