@@ -15,7 +15,18 @@ pipeline {
             }
         }
 
-       
+        /* ---------------------------
+           SONARQUBE ANALYSIS STAGE
+        ----------------------------*/
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    withSonarQubeEnv('MySonar') {
+                        sh 'sonar-scanner'
+                    }
+                }
+            }
+        }
 
         stage('Build Docker Image') {
             steps {
@@ -39,13 +50,6 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deployment step for static HTML container...'
-            }
-        }
-        stage('SonarQube Scan') {
-            steps {
-                withSonarQubeEnv('MySonar') {
-                    sh 'sonar-scanner'
-                }
             }
         }
     }
