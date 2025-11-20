@@ -60,6 +60,12 @@ pipeline {
                 archiveArtifacts artifacts: 'trivy-report.txt'
             }
         }
+        script {
+            def critical = sh(script: "grep -c 'CRITICAL' trivy-report.txt || true", returnStdout: true).trim()
+            if (critical.toInteger() > 0) {
+                error("CRITICAL vulnerabilities found in image!")
+            }
+        }
 
     }
 }
