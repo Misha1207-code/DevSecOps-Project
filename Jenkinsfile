@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        SONAR_SCANNER_HOME = tool 'SonarScanner'
+    }
+
     stages {
 
         stage('Checkout Code') {
@@ -12,19 +16,6 @@ pipeline {
         stage('Code Analysis') {
             steps {
                 echo 'Running basic security checks (HTML project)...'
-            }
-        }
-
-        /* ---------------------------
-           SONARQUBE ANALYSIS STAGE
-        ----------------------------*/
-        stage('SonarQube Scan') {
-            steps {
-                script {
-                    withSonarQubeEnv('MySonar') {
-                        sh 'sonar-scanner'
-                    }
-                }
             }
         }
 
@@ -50,6 +41,20 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deployment step for static HTML container...'
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    sh """
+                        ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                        -Dsonar.projectKey=smartcampus \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=${sonar-token}
+                    """
+                }
             }
         }
     }
