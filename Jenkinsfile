@@ -54,6 +54,12 @@ pipeline {
                 archiveArtifacts artifacts: 'dep-report/*'
             }
         }
+        stage('Trivy Scan') {
+            steps {
+                sh 'trivy image smartcampus > trivy-report.txt'
+                archiveArtifacts artifacts: 'trivy-report.txt'
+            }
+        }
 
     }
 }
