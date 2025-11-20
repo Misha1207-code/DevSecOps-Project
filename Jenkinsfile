@@ -2,6 +2,8 @@ pipeline {
     agent any
 
     environment {
+        JAVA_HOME = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
+        PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
         SCANNER_HOME = tool 'SonarScanner'
     }
 
@@ -50,6 +52,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deployment step for static HTML container...'
+            }
+        }
+
+        /* --------- TEST JAVA VERSION --------- */
+        stage('Test Java Version') {
+            steps {
+                bat """
+                    echo Checking Java version...
+                    "%JAVA_HOME%\\bin\\java.exe" -version
+                """
             }
         }
 
