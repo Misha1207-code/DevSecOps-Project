@@ -9,21 +9,18 @@ pipeline {
 
     stages {
 
-        /* --------- CHECKOUT CODE --------- */
         stage('Checkout Code') {
             steps {
                 git branch: 'main', url: 'https://github.com/Misha1207-code/DevSecOps-Project.git'
             }
         }
 
-        /* --------- BASIC CODE ANALYSIS --------- */
         stage('Code Analysis') {
             steps {
                 echo 'Running basic security checks (HTML project)...'
             }
         }
 
-        /* --------- BUILD DOCKER IMAGE --------- */
         stage('Build Docker Image') {
             steps {
                 bat """
@@ -32,7 +29,6 @@ pipeline {
             }
         }
 
-        /* --------- PUSH TO DOCKER HUB --------- */
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
@@ -48,14 +44,12 @@ pipeline {
             }
         }
 
-        /* --------- DEPLOYMENT --------- */
         stage('Deploy') {
             steps {
                 echo 'Deployment step for static HTML container...'
             }
         }
 
-        /* --------- TEST JAVA VERSION --------- */
         stage('Test Java Version') {
             steps {
                 bat """
@@ -65,7 +59,6 @@ pipeline {
             }
         }
 
-        /* --------- SONARQUBE SCAN --------- */
         stage('SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
@@ -74,7 +67,7 @@ pipeline {
                             "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
                             -Dsonar.projectKey=smartcampus ^
                             -Dsonar.sources=. ^
-                            -Dsonar.host.url=%SONAR_HOST_URL% ^
+                            -Dsonar.host.url=http://localhost:9000 ^
                             -Dsonar.login=%SONAR_TOKEN%
                         """
                     }
