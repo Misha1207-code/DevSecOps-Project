@@ -1,17 +1,4 @@
-FROM nginx:alpine
+FROM nginx:latest
 COPY . /usr/share/nginx/html
 EXPOSE 80
 
-FROM node:18
-
-WORKDIR /app
-
-COPY backend ./backend
-COPY frontend ./frontend
-
-WORKDIR /app/backend
-RUN npm install
-
-EXPOSE 3000
-
-CMD ["node", "server.js"]
