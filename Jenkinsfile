@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        SONAR_SCANNER_HOME = tool 'SonarScanner'
-    }
-
     stages {
 
         /* --------- CHECKOUT CODE --------- */
@@ -59,11 +55,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
                         sh """
-                            ${SONAR_SCANNER_HOME}/bin/sonar-scanner \
+                            sonar-scanner \
                             -Dsonar.projectKey=smartcampus \
                             -Dsonar.sources=. \
                             -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=\$SONAR_TOKEN
+                            -Dsonar.login=$SONAR_TOKEN
                         """
                     }
                 }
