@@ -23,18 +23,23 @@ pipeline {
         }
 
         /* ============================
-         *     DEPENDENCY CHECK
+         *     DEPENDENCY CHECK FIXED
          * ============================ */
         stage('Dependency Check') {
             steps {
-                dependencyCheck additionalArguments: '''
-                    --format HTML
-                    --format JSON
-                    --project DevSecOpsProject
-                ''',
-                out: 'dependency-check-report',
-                scan: '.',
-                toolName: 'DC'
+                dependencyCheckAnalyzer(
+                    scanPath: '.',
+                    outputDirectory: 'dependency-check-report',
+                    dataDirectory: '',
+                    includeHtmlReports: true,
+                    suppressionFile: '',
+                    zipExtensions: '',
+                    sourceDirectories: ''
+                )
+
+                dependencyCheckPublisher(
+                    pattern: 'dependency-check-report/*.html'
+                )
             }
         }
 
