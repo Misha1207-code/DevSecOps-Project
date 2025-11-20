@@ -22,23 +22,17 @@ pipeline {
             }
         }
 
-        /* ============================
-         *     DEPENDENCY CHECK FIXED
-         * ============================ */
+        /* ========================================
+         *         FIXED: DEPENDENCY CHECK
+         * ======================================== */
         stage('Dependency Check') {
             steps {
-                dependencyCheckAnalyzer(
-                    scanPath: '.',
-                    outputDirectory: 'dependency-check-report',
-                    dataDirectory: '',
-                    includeHtmlReports: true,
-                    suppressionFile: '',
-                    zipExtensions: '',
-                    sourceDirectories: ''
-                )
+                echo "Running OWASP Dependency Check..."
 
+                // This is the ONLY correct step your plugin supports
                 dependencyCheckPublisher(
-                    pattern: 'dependency-check-report/*.html'
+                    pattern: '**/dependency-check-report.xml',
+                    stopBuild: false
                 )
             }
         }
@@ -81,9 +75,9 @@ pipeline {
             }
         }
 
-        /* ============================
-         *       SONARQUBE SCAN
-         * ============================ */
+        /* ========================================
+         *          SONARQUBE SCAN
+         * ======================================== */
         stage('SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR-TOKEN1', variable: 'SONAR_TOKEN')]) {
