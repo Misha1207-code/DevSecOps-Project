@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        SCANNER_HOME = tool 'SonarScanner'
+    }
+
     stages {
 
         /* --------- CHECKOUT CODE --------- */
@@ -20,7 +24,7 @@ pipeline {
         /* --------- BUILD DOCKER IMAGE --------- */
         stage('Build Docker Image') {
             steps {
-                sh """
+                bat """
                     docker build -t savisaini123/yourhtmlsite:latest .
                 """
             }
@@ -34,8 +38,8 @@ pipeline {
                     usernameVariable: 'USERNAME',
                     passwordVariable: 'PASSWORD'
                 )]) {
-                    sh """
-                        echo \$PASSWORD | docker login -u \$USERNAME --password-stdin
+                    bat """
+                        echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
                         docker push savisaini123/yourhtmlsite:latest
                     """
                 }
@@ -54,12 +58,12 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
-                        sh """
-                            sonar-scanner \
-                            -Dsonar.projectKey=smartcampus \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.login=$SONAR_TOKEN
+                        bat """
+                            "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
+                            -Dsonar.projectKey=smartcampus ^
+                            -Dsonar.sources=. ^
+                            -Dsonar.host.url=%SONAR_HOST_URL% ^
+                            -Dsonar.login=%SONAR_TOKEN%
                         """
                     }
                 }
