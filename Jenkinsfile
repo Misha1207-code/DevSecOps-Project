@@ -1,4 +1,5 @@
 pipeline {
+    
     agent any
 
     environment {
@@ -61,13 +62,13 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'SONAR-TOKEN1', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
                         bat """
-                            "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
-                            -Dsonar.projectKey=smartcampus ^
-                            -Dsonar.sources=. ^
-                            -Dsonar.host.url=http://localhost:9000 ^
+                            "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^ 
+                            -Dsonar.projectKey=smartcampus ^ 
+                            -Dsonar.sources=. ^ 
+                            -Dsonar.host.url=http://localhost:9000 ^ 
                             -Dsonar.login=%SONAR_TOKEN%
                         """
                     }
