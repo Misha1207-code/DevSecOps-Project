@@ -6,7 +6,6 @@ pipeline {
         JAVA_HOME = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
         PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
         SCANNER_HOME = tool 'SonarScanner'
-        DEP_CHECK_HOME = "C:\\dependency-check"
     }
 
     stages {
@@ -23,21 +22,19 @@ pipeline {
             }
         }
 
-        /*
-         * ============================
+        /* ============================
          *     DEPENDENCY CHECK
-         * ============================
-         */
+         * ============================ */
         stage('Dependency Check') {
             steps {
-                bat """
-                    echo Running OWASP Dependency-Check...
-                    "%DEP_CHECK_HOME%\\bin\\dependency-check.bat" ^
-                    --scan . ^
-                    --format HTML ^
-                    --project DevSecOpsProject ^
-                    --out dependency-check-report
-                """
+                dependencyCheck additionalArguments: '''
+                    --format HTML
+                    --format JSON
+                    --project DevSecOpsProject
+                ''',
+                out: 'dependency-check-report',
+                scan: '.',
+                toolName: 'DC'
             }
         }
 
@@ -79,11 +76,9 @@ pipeline {
             }
         }
 
-        /*
-         * ============================
+        /* ============================
          *       SONARQUBE SCAN
-         * ============================
-         */
+         * ============================ */
         stage('SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'SONAR-TOKEN1', variable: 'SONAR_TOKEN')]) {
@@ -101,4 +96,3 @@ pipeline {
         }
     }
 }
-
