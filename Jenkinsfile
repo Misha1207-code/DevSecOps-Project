@@ -48,5 +48,12 @@ pipeline {
                 }
             }
         }
+        stage('Dependency Check') {
+            steps {
+                sh './dependency-check/bin/dependency-check.sh --scan . --format HTML --out dep-report'
+                archiveArtifacts artifacts: 'dep-report/*'
+            }
+        }
+
     }
 }
