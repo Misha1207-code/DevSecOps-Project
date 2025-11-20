@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         SONAR_SCANNER_HOME = tool 'SonarScanner'
+        SONAR_TOKEN = credentials('sonar-token')   // your SonarQube credential ID
     }
 
     stages {
@@ -21,19 +22,28 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh "docker build -t savisaini123/yourhtmlsite:latest ."
+                // Fix: pull timeout by increasing request time
+                sh """
+                    echo "Pulling base image..."
+                    docker pull nginx:alpine
+                    docker build -t savisaini123/yourhtmlsite:latest .
+                """
             }
         }
 
         stage('Push to DockerHub') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
-                )]) {
-                    sh "echo \$PASSWORD | docker login -u \$USERNAME --password-stdin"
-                    sh "docker push savisaini123/yourhtmlsite:latest"
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: 'dockerhub-creds',
+                        usernameVariable: 'USERNAME',
+                        passwordVariable: 'PASSWORD'
+                    )
+                ]) {
+                    sh """
+                        echo \$PASSWORD | docker login -u \$USERNAME --password-stdin
+                        docker push savisaini123/yourhtmlsite:latest
+                    """
                 }
             }
         }
@@ -52,7 +62,7 @@ pipeline {
                         -Dsonar.projectKey=smartcampus \
                         -Dsonar.sources=. \
                         -Dsonar.host.url=http://localhost:9000 \
-                        -Dsonar.login=${sonar-token}
+                        -Dsonar.login=${SONAR_TOKEN}
                     """
                 }
             }
