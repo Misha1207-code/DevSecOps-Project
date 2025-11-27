@@ -40,7 +40,7 @@ pipeline {
         stage('Trivy Image Scan') {
             steps {
                 bat """
-                    trivy image --severity HIGH,CRITICAL %IMAGE_NAME%
+                    "C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL savisaini123/yourhtmlsite:latest
                 """
             }
         }
