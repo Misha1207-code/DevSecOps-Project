@@ -61,20 +61,17 @@ pipeline {
         }
 
         stage('SonarQube Scan') {
-            steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
-                    withSonarQubeEnv('SonarQube') {
-                        bat """
-                            "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
-                            -Dsonar.projectKey=smartcampus ^
-                            -Dsonar.sources=. ^
-                            -Dsonar.host.url=http://localhost:9000 ^
-                            -Dsonar.token=%SONAR_TOKEN%
-                        """
-                    }
-                }
+    steps {
+        withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
+            withSonarQubeEnv('SonarQube') {
+                bat """
+                "%SCANNER_HOME%\\bin\\sonar-scanner.bat" -Dsonar.projectKey=smartcampus -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.token=%SONAR_TOKEN%
+                """
             }
         }
+    }
+}
+
 
         stage('Quality Gate') {
             steps {
