@@ -21,8 +21,9 @@
 </nav>
 
 <section class="hero" id="home">
-  <h1>Welcome to Smart Campus</h1>
+  <h1 id="welcomeText">Welcome to Smart Campus</h1>
   <p>A unified platform for students and faculty — secure, fast, and cloud-powered.</p>
+  <button class="btn" id="darkModeBtn">🌙 Dark Mode</button>
 </section>
 
 <div class="container">
@@ -30,34 +31,34 @@
 
   <div class="card-grid">
 
-    <div class="card">
+    <div class="card" id="login">
       <h3>Student Login</h3>
       <p>Access dashboard, attendance, notices, profile & more.</p>
-      <button class="btn">Login</button>
+      <button class="btn" onclick="studentLogin()">Login</button>
     </div>
 
     <div class="card">
       <h3>Faculty Login</h3>
       <p>Manage courses, update attendance, publish notices.</p>
-      <button class="btn">Login</button>
+      <button class="btn" onclick="facultyLogin()">Login</button>
     </div>
 
-    <div class="card">
+    <div class="card" id="dashboard">
       <h3>Attendance</h3>
       <p>Track and update attendance securely.</p>
-      <button class="btn">View</button>
+      <button class="btn" onclick="openAttendance()">View</button>
     </div>
 
-    <div class="card">
+    <div class="card" id="notices">
       <h3>Notices</h3>
       <p>Latest campus announcements and academic updates.</p>
-      <button class="btn">Open</button>
+      <button class="btn" onclick="openNotices()">Open</button>
     </div>
 
-    <div class="card">
+    <div class="card" id="profile">
       <h3>Profile</h3>
       <p>View and edit personal information.</p>
-      <button class="btn">Manage</button>
+      <button class="btn" onclick="openProfile()">Manage</button>
     </div>
 
   </div>
@@ -67,5 +68,9 @@
   Smart Campus Platform © 2025 — Developed with DevSecOps Pipeline
 </footer>
 
+<!-- JavaScript File -->
+<script src="script.js"></script>
+
 </body>
 </html>
+

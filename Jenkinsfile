@@ -1,11 +1,12 @@
 pipeline {
-    
     agent any
 
     environment {
         JAVA_HOME = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
         PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
         SCANNER_HOME = tool 'SonarScanner'
+        IMAGE_NAME = "savisaini123/yourhtmlsite"
+        IMAGE_TAG  = "latest"
     }
 
     stages {
@@ -18,33 +19,48 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                echo 'Running basic security checks (HTML project)...'
+                echo 'Running basic checks for HTML / JS project...'
             }
         }
 
         /* ========================================
-         *         FIXED: DEPENDENCY CHECK
+         *           DEPENDENCY CHECK
          * ======================================== */
         stage('Dependency Check') {
             steps {
                 echo "Running OWASP Dependency Check..."
-
-                // This is the ONLY correct step your plugin supports
-                dependencyCheckPublisher(
-                    pattern: '**/dependency-check-report.xml',
-                    stopBuild: false
-                )
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml', stopBuild: false
             }
         }
 
+        /* ========================================
+         *           DOCKER BUILD
+         * ======================================== */
         stage('Build Docker Image') {
             steps {
+                echo "Building Docker Image..."
                 bat """
-                    docker build -t savisaini123/yourhtmlsite:latest .
+                    docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
                 """
             }
         }
 
+
+        /* ========================================
+         *           ✅ TRIVY IMAGE SCAN
+         * ======================================== */
+        stage('Trivy Image Scan') {
+            steps {
+                echo "Scanning Docker Image with Trivy..."
+                bat """
+                    trivy image --severity HIGH,CRITICAL --exit-code 0 %IMAGE_NAME%:%IMAGE_TAG%
+                """
+            }
+        }
+
+        /* ========================================
+         *           DOCKER PUSH
+         * ======================================== */
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
@@ -54,7 +70,7 @@ pipeline {
                 )]) {
                     bat """
                         echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
-                        docker push savisaini123/yourhtmlsite:latest
+                        docker push %IMAGE_NAME%:%IMAGE_TAG%
                     """
                 }
             }
@@ -76,11 +92,11 @@ pipeline {
         }
 
         /* ========================================
-         *          SONARQUBE SCAN
+         *          ✅ SONARQUBE SCAN
          * ======================================== */
         stage('SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR-TOKEN1', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'SNAR', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
                         bat """
                             "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
@@ -92,6 +108,35 @@ pipeline {
                     }
                 }
             }
+        }
+
+        /* ========================================
+         *           QUALITY GATE
+         * ======================================== */
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ PIPELINE SUCCESSFUL'
+        }
+
+        unstable {
+            echo '⚠️ PIPELINE UNSTABLE - Check reports but NOT FAILED'
+        }
+
+        failure {
+            echo '❌ PIPELINE FAILED'
+        }
+
+        always {
+            echo '✅ DevSecOps Pipeline Finished'
         }
     }
 }
