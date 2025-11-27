@@ -31,17 +31,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat '''
-                docker build -t %IMAGE_NAME% .
-                '''
+                bat 'docker build -t %IMAGE_NAME% .'
             }
         }
 
         stage('Trivy Image Scan') {
             steps {
-                bat '''
-                "C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL %IMAGE_NAME%
-                '''
+                bat '"C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL %IMAGE_NAME%'
             }
         }
 
@@ -62,15 +58,12 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
-                        bat '''
+                withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SonarQube') {
+                        bat """
                         cd /d %WORKSPACE%
-                        "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
-                        -Dsonar.projectKey=smartcampus ^
-                        -Dsonar.sources=. ^
-                        -Dsonar.login=%SONAR_TOKEN%
-                        '''
+                        "%SCANNER_HOME%\\bin\\sonar-scanner.bat" -Dsonar.projectKey=smartcampus -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%
+                        """
                     }
                 }
             }
