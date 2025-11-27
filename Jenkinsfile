@@ -31,13 +31,17 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat 'docker build -t %IMAGE_NAME% .'
+                bat '''
+                docker build -t %IMAGE_NAME% .
+                '''
             }
         }
 
         stage('Trivy Image Scan') {
             steps {
-                bat '"C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL %IMAGE_NAME%'
+                bat '''
+                "C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL %IMAGE_NAME%
+                '''
             }
         }
 
@@ -49,23 +53,24 @@ pipeline {
                     passwordVariable: 'PASSWORD'
                 )]) {
                     bat '''
-                        echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
-                        docker push %IMAGE_NAME%
+                    echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
+                    docker push %IMAGE_NAME%
                     '''
                 }
             }
         }
 
-        stage('SonarQube Scan') {
+        ✅ stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
-                        bat """
+                        bat '''
+                        cd /d %WORKSPACE%
                         "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
                         -Dsonar.projectKey=smartcampus ^
                         -Dsonar.sources=. ^
-                        -Dsonar.token=%SONAR_TOKEN%
-                        """
+                        -Dsonar.login=%SONAR_TOKEN%
+                        '''
                     }
                 }
             }
