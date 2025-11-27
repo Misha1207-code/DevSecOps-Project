@@ -62,7 +62,7 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'SNAR', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
                         bat """
                             "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
