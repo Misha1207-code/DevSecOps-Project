@@ -2,10 +2,10 @@ pipeline {
     agent any
 
     environment {
-        JAVA_HOME = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
-        PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
+        JAVA_HOME    = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
+        PATH         = "${env.JAVA_HOME}\\bin;${env.PATH}"
         SCANNER_HOME = tool 'SonarScanner'
-        IMAGE_NAME = "savisaini123/yourhtmlsite:latest"
+        IMAGE_NAME   = "savisaini123/yourhtmlsite:latest"
     }
 
     stages {
@@ -31,17 +31,13 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                bat """
-                    docker build -t %IMAGE_NAME% .
-                """
+                bat 'docker build -t %IMAGE_NAME% .'
             }
         }
 
         stage('Trivy Image Scan') {
             steps {
-                bat """
-                    "C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL savisaini123/yourhtmlsite:latest
-                """
+                bat '"C:\\ProgramData\\chocolatey\\bin\\trivy.exe" image --severity HIGH,CRITICAL %IMAGE_NAME%'
             }
         }
 
@@ -52,31 +48,33 @@ pipeline {
                     usernameVariable: 'USERNAME',
                     passwordVariable: 'PASSWORD'
                 )]) {
-                    bat """
+                    bat '''
                         echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
                         docker push %IMAGE_NAME%
-                    """
+                    '''
                 }
             }
         }
 
         stage('SonarQube Scan') {
-    steps {
-        withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
-            withSonarQubeEnv('SonarQube') {
-                bat """
-                "%SCANNER_HOME%\\bin\\sonar-scanner.bat" -Dsonar.projectKey=smartcampus -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.token=%SONAR_TOKEN%
-                """
+            steps {
+                withSonarQubeEnv('SonarQube') {
+                    withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
+                        bat """
+                        "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
+                        -Dsonar.projectKey=smartcampus ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.token=%SONAR_TOKEN%
+                        """
+                    }
+                }
             }
         }
-    }
-}
-
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 2, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: false
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
