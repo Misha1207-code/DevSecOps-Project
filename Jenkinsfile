@@ -56,14 +56,19 @@ pipeline {
             }
         }
 
+        // ✅✅ FIXED SONARQUBE STAGE ✅✅
         stage('SonarQube Scan') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     withSonarQubeEnv('SonarQube') {
-                        bat """
+                        bat '''
                         cd /d %WORKSPACE%
-                        "%SCANNER_HOME%\\bin\\sonar-scanner.bat" -Dsonar.projectKey=smartcampus -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=%SONAR_TOKEN%
-                        """
+                        call "%SCANNER_HOME%\\bin\\sonar-scanner.bat" ^
+                        -Dsonar.projectKey=smartcampus ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.host.url=http://localhost:9000 ^
+                        "-Dsonar.login=%SONAR_TOKEN%"
+                        '''
                     }
                 }
             }
