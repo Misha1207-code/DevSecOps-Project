@@ -60,7 +60,7 @@ pipeline {
             }
         }
 
-        ✅ stage('SonarQube Scan') {
+        stage('SonarQube Scan') {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     withCredentials([string(credentialsId: 'SONAR_TOKEN2', variable: 'SONAR_TOKEN')]) {
