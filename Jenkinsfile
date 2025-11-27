@@ -5,8 +5,7 @@ pipeline {
         JAVA_HOME = "C:\\Users\\LENOVO\\AppData\\Local\\Programs\\Eclipse Adoptium\\jdk-17.0.16.8-hotspot"
         PATH = "${env.JAVA_HOME}\\bin;${env.PATH}"
         SCANNER_HOME = tool 'SonarScanner'
-        IMAGE_NAME = "savisaini123/yourhtmlsite"
-        IMAGE_TAG  = "latest"
+        IMAGE_NAME = "savisaini123/yourhtmlsite:latest"
     }
 
     stages {
@@ -19,48 +18,33 @@ pipeline {
 
         stage('Code Analysis') {
             steps {
-                echo 'Running basic checks for HTML / JS project...'
+                echo 'Running basic code checks...'
             }
         }
 
-        /* ========================================
-         *           DEPENDENCY CHECK
-         * ======================================== */
-        stage('Dependency Check') {
+        stage('OWASP Dependency Check') {
             steps {
                 echo "Running OWASP Dependency Check..."
                 dependencyCheckPublisher pattern: '**/dependency-check-report.xml', stopBuild: false
             }
         }
 
-        /* ========================================
-         *           DOCKER BUILD
-         * ======================================== */
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker Image..."
                 bat """
-                    docker build -t %IMAGE_NAME%:%IMAGE_TAG% .
+                    docker build -t %IMAGE_NAME% .
                 """
             }
         }
 
-
-        /* ========================================
-         *           ✅ TRIVY IMAGE SCAN
-         * ======================================== */
         stage('Trivy Image Scan') {
             steps {
-                echo "Scanning Docker Image with Trivy..."
                 bat """
-                    trivy image --severity HIGH,CRITICAL --exit-code 0 %IMAGE_NAME%:%IMAGE_TAG%
+                    trivy image --severity HIGH,CRITICAL %IMAGE_NAME%
                 """
             }
         }
 
-        /* ========================================
-         *           DOCKER PUSH
-         * ======================================== */
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
@@ -70,30 +54,12 @@ pipeline {
                 )]) {
                     bat """
                         echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
-                        docker push %IMAGE_NAME%:%IMAGE_TAG%
+                        docker push %IMAGE_NAME%
                     """
                 }
             }
         }
 
-        stage('Deploy') {
-            steps {
-                echo 'Deployment step for static HTML container...'
-            }
-        }
-
-        stage('Test Java Version') {
-            steps {
-                bat """
-                    echo Checking Java version...
-                    "%JAVA_HOME%\\bin\\java.exe" -version
-                """
-            }
-        }
-
-        /* ========================================
-         *          ✅ SONARQUBE SCAN
-         * ======================================== */
         stage('SonarQube Scan') {
             steps {
                 withCredentials([string(credentialsId: 'SNAR', variable: 'SONAR_TOKEN')]) {
@@ -103,21 +69,24 @@ pipeline {
                             -Dsonar.projectKey=smartcampus ^
                             -Dsonar.sources=. ^
                             -Dsonar.host.url=http://localhost:9000 ^
-                            -Dsonar.login=%SONAR_TOKEN%
+                            -Dsonar.token=%SONAR_TOKEN%
                         """
                     }
                 }
             }
         }
 
-        /* ========================================
-         *           QUALITY GATE
-         * ======================================== */
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: false
                 }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deployment step for container...'
             }
         }
     }
@@ -126,17 +95,11 @@ pipeline {
         success {
             echo '✅ PIPELINE SUCCESSFUL'
         }
-
         unstable {
-            echo '⚠️ PIPELINE UNSTABLE - Check reports but NOT FAILED'
+            echo '⚠️ PIPELINE UNSTABLE — Please review reports'
         }
-
         failure {
             echo '❌ PIPELINE FAILED'
-        }
-
-        always {
-            echo '✅ DevSecOps Pipeline Finished'
         }
     }
 }
