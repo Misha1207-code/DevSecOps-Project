@@ -73,6 +73,41 @@ pipeline {
                 }
             }
         }
+        stage('Build Frontend Image') {
+    steps {
+        sh 'docker build -t misha1207/smartcampus-frontend:latest -f Dockerfile.frontend .'
+    }
+}
+
+stage('Trivy Frontend Scan') {
+    steps {
+        sh 'trivy image misha1207/smartcampus-frontend:latest || true'
+    }
+}
+
+stage('Push Frontend to DockerHub') {
+    steps {
+        withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+            sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
+            sh 'docker push misha1207/smartcampus-frontend:latest'
+        }
+    }
+}
+
+stage('Deploy Frontend to EC2') {
+    steps {
+        sshagent(['ec2-key']) {
+            sh '''
+            ssh -o StrictHostKeyChecking=no ubuntu@13.235.31.0 '
+                docker pull misha1207/smartcampus-frontend:latest &&
+                docker stop frontend || true &&
+                docker rm frontend || true &&
+                docker run -d -p 8080:80 --name frontend misha1207/smartcampus-frontend:latest
+            '
+            '''
+        }
+    }
+}
 
        
 
