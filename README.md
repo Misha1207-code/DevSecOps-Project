@@ -8,3 +8,5 @@ Project Overview
 A web application that provides student and faculty services (login, dashboard, notices, attendance, profile). The project emphasizes security-first delivery by integrating static analysis (SonarQube), dependency scanning (OWASP Dependency-Check), container scanning (Trivy), and fully automated CI/CD (Jenkins) that deploys to AWS EC2.
 
 Access backend using- http://13.235.31.0/
+Access frontend using- http://13.235.31.0:8080/
+- deployed using AWS 3C2
