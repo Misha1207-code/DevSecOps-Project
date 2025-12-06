@@ -9,4 +9,4 @@ A web application that provides student and faculty services (login, dashboard, 
 
 Access backend using- http://13.235.31.0/
 Access frontend using- http://13.235.31.0:8080/
-- deployed using AWS 3C2
+- deployed using AWS EC2
